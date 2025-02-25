@@ -1,0 +1,244 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IQ Test App</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
+            display: flex;
+flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        #start-page, #quiz-page, #final-page {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+#options button {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        #options button:hover {
+            background-color: #d0d0d0;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+
+        #final-question {
+            margin-bottom: 10px;
+        }
+
+        #final-answer {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        #submit-final {
+            margin-top: 10px;
+        }
+
+        #quiz-page, #final-page {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-page">
+        <h2>Welcome!</h2>
+        <p>This is not an official IQ test, but just to help you build your IQ by failing and winning each time. The answers will never be revealed unless the answer is right. The fun of the game is the questions only change when you answer correctly. If you don't, you will never go to page 2 for higher more complex IQ tests. If you win that, you get to pass to the final page which is one question that can take you 100 days to answer it.</p>
+        <button id="start-button">Start Quiz</button>
+    </div>
+
+    <div id="quiz-page">
+        <h2>IQ Test</h2>
+        <div id="question"></div>
+        <div id="options"></div>
+        <button id="next-button" style="display: none;">Next</button>
+        <div id="result"></div>
+    </div>
+
+    <div id="final-page">
+        <h2>Final Challenge</h2>
+        <div id="final-question"></div>
+        <textarea id="final-answer"></textarea>
+        <button id="submit-final">Submit</button>
+        <div id="final-result"></div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Which number comes next in the sequence: 2, 4, 6, 8, __?",
+                options: ["10", "50", "9", "12"],
+                answer: "10"
+            },
+            {
+                question: "What is the next letter in the series: A, C, E, G, __?",
+                options: ["B", "F", "I", "H"],
+                answer: "I"
+            },
+            {
+                question: "If all bargs are flegs, and some flegs are grots, does it necessarily follow that all bargs are grots?",
+                options: ["No", "Yes"],
+                answer: "No"
+            },
+            {
+                question: "Which of the following shapes is different from the others?",
+                options: ["circle", "sphere", "crescent", "square"],
+                answer: "square"
+            },
+        ];
+
+        const finalQuestion = "Look at the following sequence of letters: M V E M J S U N P __? __? What are the next two letters?";
+const finalAnswer = "DC";
+
+        let currentQuestionIndex = 0;
+let score = 0;
+        let answeredCorrectly = false;
+const startPage = document.getElementById("start-page");
+        const quizPage = document.getElementById("quiz-page");
+        const finalPage = document.getElementById("final-page");
+        const questionDiv = document.getElementById("question");
+        const optionsDiv = document.getElementById("options");
+        const nextButton = document.getElementById("next-button");
+        const finalQuestionDiv = document.getElementById("final-question");
+        const finalAnswerInput = document.getElementById("final-answer");
+        const submitFinalButton = document.getElementById("submit-final");
+        const finalResultDiv = document.getElementById("final-result");
+        const startButton = document.getElementById("start-button");
+
+        startButton.addEventListener("click", startQuiz);
+        nextButton.addEventListener("click", nextQuestion);
+        submitFinalButton.addEventListener("click", checkFinalAnswer);
+
+        function startQuiz() {
+            startPage.style.display = "none";
+            quizPage.style.display = "block";
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const questionData = quizData[currentQuestionIndex];
+            questionDiv.textContent = questionData.question;
+            optionsDiv.innerHTML = "";
+
+            questionData.options.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.addEventListener("click", () => checkAnswer(option));
+                optionsDiv.appendChild(button);
+                button.style.backgroundColor = "#e0e0e0";
+            });
+}
+
+        function checkAnswer(selectedAnswer) {
+            const correctAnswer = quizData[currentQuestionIndex].answer;
+            const resultDiv = document.getElementById("result");
+            const optionsButtons = document.querySelectorAll("#options button");
+
+            if (selectedAnswer === correctAnswer) {
+                resultDiv.textContent = "Correct!";
+                resultDiv.classList.add("correct");
+                resultDiv.classList.remove("incorrect");
+
+                optionsButtons.forEach(button => {
+                    if (button.textContent === correctAnswer) {
+                        button.style.backgroundColor = "green";
+                    } else {
+                        button.style.backgroundColor = "red";
+                    }
+                });
+
+                score++;
+                answeredCorrectly = true;
+                nextButton.style.display = "block";
+            } else {
+                resultDiv.textContent = "Incorrect. Try again.";
+                resultDiv.classList.add("incorrect");
+                resultDiv.classList.remove("correct");
+                optionsButtons.forEach(button => {
+                    if (button.textContent === selectedAnswer) {
+                        button.style.backgroundColor = "red";
+                    }
+                });
+                answeredCorrectly = false;
+                nextButton.style.display = "none";
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                displayQuestion();
+            } else {
+                quizPage.style.display = "none";
+                finalPage.style.display = "block";
+                finalQuestionDiv.textContent = finalQuestion;
+            }
+            nextButton.style.display = "none";
+        }
+
+        function checkFinalAnswer() {
+            const userAnswer = finalAnswerInput.value;
+            if (userAnswer === finalAnswer) {
+                finalResultDiv.textContent = "Correct!";
+                finalResultDiv.classList.add("correct");
+                finalResultDiv.classList.remove("incorrect");
+            } else {
+                finalResultDiv.textContent = "Incorrect.";
+                finalResultDiv.classList.add("incorrect");
+                finalResultDiv.classList.remove("correct");
+    }
+        }
+    </script>
+
+</body>
+
+</html>
